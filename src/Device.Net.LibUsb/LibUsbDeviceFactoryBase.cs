@@ -8,6 +8,50 @@ using Microsoft.Extensions.Logging;
 
 namespace Device.Net.LibUsb
 {
+    public static class Ass
+    {
+        public static IDeviceFactory CreateWindowsUsbDeviceFactory(
+        this IEnumerable<FilterDeviceDefinition> filterDeviceDefinitions,
+        ILoggerFactory loggerFactory = null,
+        GetConnectedDeviceDefinitionsAsync getConnectedDeviceDefinitionsAsync = null,
+        GetUsbInterfaceManager getUsbInterfaceManager = null,
+        Guid? classGuid = null,
+        ushort? readBufferSize = null,
+        ushort? writeBufferSize = null
+        )
+        {
+            loggerFactory = loggerFactory ?? NullLoggerFactory.Instance;
+
+            if (getConnectedDeviceDefinitionsAsync == null)
+            {
+                var logger = loggerFactory.CreateLogger<WindowsDeviceEnumerator>();
+
+                var uwpHidDeviceEnumerator = new WindowsDeviceEnumerator(
+                    logger,
+                    classGuid ?? WindowsDeviceConstants.WinUSBGuid,
+                    (d) => DeviceBase.GetDeviceDefinitionFromWindowsDeviceId(d, DeviceType.Usb, logger),
+                    async (c) =>
+                    filterDeviceDefinitions.FirstOrDefault((f) => DeviceManager.IsDefinitionMatch(f, c, DeviceType.Usb)) != null);
+
+                getConnectedDeviceDefinitionsAsync = uwpHidDeviceEnumerator.GetConnectedDeviceDefinitionsAsync;
+            }
+
+            if (getUsbInterfaceManager == null)
+            {
+                getUsbInterfaceManager = async (d) =>
+                    new WindowsUsbInterfaceManager(
+                    //TODO: no idea if this is OK...
+                    d,
+                    loggerFactory,
+                    readBufferSize,
+                    writeBufferSize);
+            }
+
+            return UsbDeviceFactoryExtensions.CreateUsbDeviceFactory(getConnectedDeviceDefinitionsAsync, getUsbInterfaceManager, loggerFactory);
+        }
+
+    }
+
     public abstract class LibUsbDeviceFactoryBase : IDeviceFactory
     {
         #region Protected Properties
@@ -62,7 +106,7 @@ namespace Device.Net.LibUsb
 #pragma warning disable CA2000 // Dispose objects before losing scope
             var usbDevice = UsbDevice.OpenUsbDevice(usbDeviceFinder);
 #pragma warning restore CA2000 // Dispose objects before losing scope
-            return usbDevice != null ? new LibUsbDevice(usbDevice, 3000, LoggerFactory.CreateLogger<LibUsbDevice>()) : null;
+            return usbDevice != null ? new LibUsbDevice(usbDevice, 3000, LoggerFactory) : null;
         }
         #endregion
 

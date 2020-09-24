@@ -33,12 +33,8 @@ namespace Device.Net.LibUsb
         #endregion
 
         #region Constructor
-        public LibUsbDevice(UsbDevice usbDevice, int timeout) : this(usbDevice, timeout, null)
-        {
-        }
-
 #pragma warning disable CA1062 // Validate arguments of public methods
-        public LibUsbDevice(UsbDevice usbDevice, int timeout, ILogger logger) : base(usbDevice.DevicePath, logger)
+        public LibUsbDevice(UsbDevice usbDevice, int timeout, ILoggerFactory loggerFactory = null) : base(usbDevice.DevicePath, loggerFactory)
 #pragma warning restore CA1062 // Validate arguments of public methods
         {
             UsbDevice = usbDevice ?? throw new ArgumentNullException(nameof(usbDevice));
