@@ -78,9 +78,10 @@ namespace Usb.Net.Android
             {
                 ProductName = usbDevice.ProductName,
                 Manufacturer = usbDevice.ManufacturerName,
-                SerialNumber = usbDevice.SerialNumber,
-                ProductId = (uint)usbDevice.ProductId,
-                VendorId = (uint)usbDevice.VendorId,
+                //TODO: Put this back 
+                //SerialNumber = usbDevice.SerialNumber,
+                //ProductId = (uint)usbDevice.ProductId,
+                //VendorId = (uint)usbDevice.VendorId,
                 DeviceType = DeviceType.Usb
             };
         }
