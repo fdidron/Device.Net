@@ -18,19 +18,18 @@ namespace Usb.Net.AndroidSample
     {
         #region Fields
         private readonly TrezorExample _TrezorExample;
-        private readonly IDeviceManager _DeviceManager;
+        private IDeviceManager _DeviceManager;
         private readonly ILoggerFactory _LoggerFactory;
         #endregion
 
         #region Constructor
         public MainActivity()
         {
-            var loggerFactory = LoggerFactory.Create((builder) =>
+            _LoggerFactory = LoggerFactory.Create((builder) =>
             {
                 builder.AddDebug();
             });
 
-            _DeviceManager = new DeviceManager(loggerFactory);
             _TrezorExample = new TrezorExample(_DeviceManager, _LoggerFactory);
         }
         #endregion
@@ -75,12 +74,11 @@ namespace Usb.Net.AndroidSample
         {
             try
             {
-
-
                 if (!(GetSystemService(UsbService) is UsbManager usbManager)) throw new Exception("UsbManager is null");
 
-                //Register the factory for creating Usb devices. This only needs to be done once.
-                _DeviceManager.RegisterDeviceFactory(new AndroidUsbDeviceFactory(usbManager, base.ApplicationContext, _LoggerFactory));
+                _DeviceManager = TrezorExample.UsbDeviceDefinitions
+                    .CreateAndroidUsbDeviceFactory(usbManager, base.ApplicationContext, loggerFactory: _LoggerFactory)
+                    .ToDeviceManager(_LoggerFactory);
 
                 _TrezorExample.TrezorDisconnected += TrezorExample_TrezorDisconnected;
                 _TrezorExample.TrezorInitialized += TrezorExample_TrezorInitialized;
