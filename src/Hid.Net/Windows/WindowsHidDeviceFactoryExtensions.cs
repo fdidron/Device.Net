@@ -89,7 +89,9 @@ namespace Hid.Net.Windows
                 DeviceType.Hid);
         }
 
+#pragma warning disable CA1801 // Review unused parameters
         private static ConnectedDeviceDefinition GetDeviceDefinition(string deviceId, IHidApiService HidService, ILogger logger)
+#pragma warning restore CA1801 // Review unused parameters
         {
             logger ??= NullLogger.Instance;
 
@@ -97,13 +99,14 @@ namespace Hid.Net.Windows
 
             try
             {
-                using var safeFileHandle = HidService.CreateReadConnection(deviceId, FileAccessRights.None);
+                return null;
+                //using var safeFileHandle = HidService.CreateReadConnection(deviceId, FileAccessRights.None);
 
-                if (safeFileHandle.IsInvalid) throw new DeviceException($"{nameof(HidService.CreateReadConnection)} call with Id of {deviceId} failed.");
+                //if (safeFileHandle.IsInvalid) throw new DeviceException($"{nameof(HidService.CreateReadConnection)} call with Id of {deviceId} failed.");
 
-                logger.LogDebug(Messages.InformationMessageFoundDevice);
+                //logger.LogDebug(Messages.InformationMessageFoundDevice);
 
-                return HidService.GetDeviceDefinition(deviceId, safeFileHandle);
+                //return HidService.GetDeviceDefinition(deviceId, safeFileHandle);
             }
             catch (Exception ex)
             {

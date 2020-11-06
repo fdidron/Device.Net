@@ -71,8 +71,8 @@ namespace Hid.Net.Windows
                         $"{nameof(DeviceId)} must be specified before {nameof(Initialize)} can be called.");
                 }
 
-                _ReadSafeFileHandle = HidService.CreateReadConnection(DeviceId, FileAccessRights.GenericRead);
-                _WriteSafeFileHandle = HidService.CreateWriteConnection(DeviceId);
+                //_ReadSafeFileHandle = HidService.CreateReadConnection(DeviceId, FileAccessRights.GenericRead);
+                //_WriteSafeFileHandle = HidService.CreateWriteConnection(DeviceId);
 
                 if (_ReadSafeFileHandle.IsInvalid)
                 {

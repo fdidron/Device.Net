@@ -44,7 +44,10 @@ namespace Device.Net.UnitTests
         [TestMethod]
         public async Task TestConnectToSTMDFUMode()
         {
-            const string deviceID = @"USB\VID_0483&PID_DF11\00000008FFFF";
+            var asdasds = new FilterDeviceDefinition(0x0484, 0xdf11).CreateWindowsUsbDeviceFactory();
+            var fdafasddfsd = await asdasds.GetConnectedDeviceDefinitionsAsync();
+
+            const string deviceID = @"\\?\usb#vid_0483&pid_df11#00000008ffff#{a5dcbf10-6530-11d2-901f-00c04fb951ed}";
             var windowsUsbDevice = new UsbDevice(deviceID, new WindowsUsbInterfaceManager(deviceID));
             await windowsUsbDevice.InitializeAsync();
         }

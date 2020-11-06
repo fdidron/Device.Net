@@ -13,13 +13,13 @@ namespace Usb.Net.Windows
     {
         #region Fields
         private bool disposed;
-        private SafeFileHandle _DeviceHandle;
+        private IntPtr _DeviceHandle;
         protected ushort? ReadBufferSizeProtected { get; set; }
         protected ushort? WriteBufferSizeProtected { get; set; }
         #endregion
 
         #region Public Properties
-        public bool IsInitialized => _DeviceHandle != null && !_DeviceHandle.IsInvalid;
+        public bool IsInitialized => true;// _DeviceHandle != null && !_DeviceHandle.IsInvalid;
         public string DeviceId { get; }
 
         //TODO: Null checking here. These will error if the device doesn't have a value or it is not initialized
@@ -63,12 +63,11 @@ namespace Usb.Net.Windows
                     APICalls.FileShareRead | APICalls.FileShareWrite, IntPtr.Zero, APICalls.OpenExisting,
                     APICalls.FileAttributeNormal | APICalls.FileFlagOverlapped, IntPtr.Zero);
 
-                if (_DeviceHandle.IsInvalid)
-                {
-                    //TODO: is error code useful here?
-                    errorCode = Marshal.GetLastWin32Error();
-                    if (errorCode > 0) throw new ApiException($"Device handle no good. Error code: {errorCode}");
-                }
+
+                //TODO: is error code useful here?
+                errorCode = Marshal.GetLastWin32Error();
+                if (errorCode > 0) throw new ApiException($"Device handle no good. Error code: {errorCode}");
+
 
                 Logger.LogInformation(Messages.SuccessMessageGotWriteAndReadHandle);
 
@@ -214,8 +213,8 @@ namespace Usb.Net.Windows
 
             UsbInterfaces.Clear();
 
-            _DeviceHandle?.Dispose();
-            _DeviceHandle = null;
+            //_DeviceHandle?.Dispose();
+            //_DeviceHandle = null;
         }
 
         public override void Dispose()

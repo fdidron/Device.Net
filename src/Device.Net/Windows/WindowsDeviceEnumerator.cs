@@ -48,7 +48,7 @@ namespace Device.Net.Windows
 
                     const int flags = APICalls.DigcfDeviceinterface | APICalls.DigcfPresent;
 
-                    var copyOfClassGuid = new Guid(_classGuid.ToString());
+                    var copyOfClassGuid = new Guid("a5dcbf10-6530-11d2-901f-00c04fb951ed");
 
                     Logger.LogDebug("About to call {call} for class Guid {guidString}. Flags: {flags}",
                         nameof(APICalls.SetupDiGetClassDevs), _classGuid.ToString(), flags);

@@ -13,16 +13,18 @@ namespace Device.Net.Windows
         #endregion
 
         #region Constructor
+#pragma warning disable IDE0021 // Use expression body for constructors
         protected ApiService(ILogger logger = null)
         {
             Logger = logger ?? NullLogger.Instance;
         }
+#pragma warning restore IDE0021 // Use expression body for constructors
         #endregion
 
         #region Implementation
-        public SafeFileHandle CreateWriteConnection(string deviceId) => CreateConnection(deviceId, FileAccessRights.GenericRead | FileAccessRights.GenericWrite, APICalls.FileShareRead | APICalls.FileShareWrite, APICalls.OpenExisting);
+        public IntPtr CreateWriteConnection(string deviceId) => CreateConnection(deviceId, FileAccessRights.GenericRead | FileAccessRights.GenericWrite, APICalls.FileShareRead | APICalls.FileShareWrite, APICalls.OpenExisting);
 
-        public SafeFileHandle CreateReadConnection(string deviceId, FileAccessRights desiredAccess) => CreateConnection(deviceId, desiredAccess, APICalls.FileShareRead | APICalls.FileShareWrite, APICalls.OpenExisting);
+        public IntPtr CreateReadConnection(string deviceId, FileAccessRights desiredAccess) => CreateConnection(deviceId, desiredAccess, APICalls.FileShareRead | APICalls.FileShareWrite, APICalls.OpenExisting);
 
         public bool AGetCommState(SafeFileHandle hFile, ref Dcb lpDCB) => GetCommState(hFile, ref lpDCB);
         public bool APurgeComm(SafeFileHandle hFile, int dwFlags) => PurgeComm(hFile, dwFlags);
@@ -33,7 +35,7 @@ namespace Device.Net.Windows
         #endregion
 
         #region Private Methods
-        private SafeFileHandle CreateConnection(string deviceId, FileAccessRights desiredAccess, uint shareMode, uint creationDisposition)
+        private IntPtr CreateConnection(string deviceId, FileAccessRights desiredAccess, uint shareMode, uint creationDisposition)
         {
             Logger.LogInformation("Calling {call} Area: {area} for DeviceId: {deviceId}. Desired Access: {desiredAccess}. Share mode: {shareMode}. Creation Disposition: {creationDisposition}", nameof(APICalls.CreateFile), nameof(ApiService), deviceId, desiredAccess, shareMode, creationDisposition);
             return APICalls.CreateFile(deviceId, desiredAccess, shareMode, IntPtr.Zero, creationDisposition, 0, IntPtr.Zero);
