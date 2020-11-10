@@ -14,6 +14,7 @@ namespace Usb.Net.Windows
         #region Fields
         private bool disposed;
         private SafeFileHandle _DeviceHandle;
+        private SafeFileHandle _InterfaceHandle;
         protected ushort? ReadBufferSizeProtected { get; set; }
         protected ushort? WriteBufferSizeProtected { get; set; }
         #endregion
@@ -73,11 +74,11 @@ namespace Usb.Net.Windows
                 Logger.LogInformation(Messages.SuccessMessageGotWriteAndReadHandle);
 
 #pragma warning disable CA2000 //We need to hold on to this handle
-                var isSuccess = WinUsbApiCalls.WinUsb_Initialize(_DeviceHandle, out var defaultInterfaceHandle);
+                var isSuccess = WinUsbApiCalls.WinUsb_Initialize(_DeviceHandle, out _InterfaceHandle);
 #pragma warning restore CA2000
                 WindowsDeviceBase.HandleError(isSuccess, Messages.ErrorMessageCouldntIntializeDevice);
 
-                var connectedDeviceDefinition = GetDeviceDefinition(defaultInterfaceHandle, DeviceId, Logger);
+                var connectedDeviceDefinition = GetDeviceDefinition(_InterfaceHandle, DeviceId, Logger);
 
                 if (!WriteBufferSizeProtected.HasValue)
                 {
@@ -95,14 +96,14 @@ namespace Usb.Net.Windows
 
                 //Get the first (default) interface
 #pragma warning disable CA2000 //Ths should be disposed later
-                var defaultInterface = GetInterface(defaultInterfaceHandle);
+                var defaultInterface = GetInterface(_InterfaceHandle);
 
                 UsbInterfaces.Add(defaultInterface);
 
                 byte i = 0;
                 while (true)
                 {
-                    isSuccess = WinUsbApiCalls.WinUsb_GetAssociatedInterface(defaultInterfaceHandle, i,
+                    isSuccess = WinUsbApiCalls.WinUsb_GetAssociatedInterface(_InterfaceHandle, i,
                         out var interfacePointer);
                     if (!isSuccess)
                     {
@@ -247,15 +248,10 @@ namespace Usb.Net.Windows
         public uint SendControlOutTransfer(WINUSB_SETUP_PACKET winSetupPacket, byte[] buffer)
         {
             uint bytesWritten = 0;
+            uint bufferLength = 0;
+            if (buffer != null && buffer.Length > 0) bufferLength = (uint)buffer.Length;
 
-            if (buffer != null && buffer.Length > 0)
-            {
-                WinUsbApiCalls.WinUsb_ControlTransfer(_DeviceHandle.DangerousGetHandle(), winSetupPacket, buffer, (uint)buffer.Length, ref bytesWritten, IntPtr.Zero); //last pointer is overlapped structure for async operations
-            }
-            else
-            {
-                throw new Exception("Buffer must not be empty");
-            }
+            WinUsbApiCalls.WinUsb_ControlTransfer(_InterfaceHandle.DangerousGetHandle(), winSetupPacket, buffer, bufferLength, ref bytesWritten, IntPtr.Zero); //last pointer is overlapped structure for async operations
             return bytesWritten;
         }
 
